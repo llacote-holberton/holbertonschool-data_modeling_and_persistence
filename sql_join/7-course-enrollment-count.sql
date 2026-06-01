@@ -5,12 +5,16 @@ FROM courses
   LEFT JOIN enrollments
     ON enrollments.course_id = courses.id
 GROUP BY
-  course_id
+  courses.id
 ORDER BY
   enrollment_count DESC,
   course_title ASC
 ;
 
+-- WARNING: the GROUP BY must explicitely target the id column from courses table (courses.id)
+--   "course_id" is not the right id to target because in spite of the LEFT JOIN
+--   if there are several courses without any students then they will all end up
+--   in a "NULL id" group and therefore only one of them will have its title listed.
 
 /*
  * ========== T7 Instructions ==========
