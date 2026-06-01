@@ -1,20 +1,20 @@
-WITH assignations_per_course AS 
+WITH assignments_per_course AS 
 (
   SELECT
     course_id, -- REQUIRED FOR GROUP BY AND JOIN
-    count(student_id) as students_count
-  FROM registrations
+    count(id) as assignments_count
+  FROM assignments
   GROUP BY course_id
 )
 
 SELECT courses.title
 FROM courses
-JOIN assignations_per_course
-  ON assignations_per_course.course_id = courses.id
-WHERE assignations_per_course.students_count > 
+JOIN assignments_per_course
+  ON assignments_per_course.course_id = courses.id
+WHERE assignments_per_course.assignments_count > 
   (
-      SELECT AVG(assignations_per_course.students_count) as average_count
-      FROM assignations_per_course
+      SELECT AVG(assignments_per_course.assignments_count) as average_count
+      FROM assignments_per_course
   )
 
 ORDER BY courses.title ASC
@@ -34,7 +34,7 @@ ORDER BY courses.title ASC
  *
  * === REQUEST ANALYSIS AND DECOMPOSITION ===
  * To fulfill the request we need to...
- * a) Get the count of assignations for each course
+ * a) Get the count of assignments for each course
  * b) Get the average across all courses
  * c) Combine both to filter one compared to the other
  *
