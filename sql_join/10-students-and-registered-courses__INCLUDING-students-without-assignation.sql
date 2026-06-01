@@ -3,9 +3,9 @@ SELECT
   courses.title as course_title
 FROM
   students
-  INNER JOIN registrations
+  LEFT JOIN registrations
     ON students.id = registrations.student_id
-  INNER JOIN courses
+  LEFT JOIN courses
     ON courses.id = registrations.course_id
 ORDER BY
   student_name ASC,
