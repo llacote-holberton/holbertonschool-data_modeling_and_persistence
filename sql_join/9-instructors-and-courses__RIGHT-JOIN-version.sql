@@ -2,9 +2,9 @@ SELECT
   instructors.name as instructor_name,
   courses.title as course_title
 FROM
-  instructors
-LEFT JOIN
-  courses ON instructors.id = courses.instructor_id
+  courses
+RIGHT JOIN
+  instructors ON instructors.id = courses.instructor_id
 ORDER BY
   instructor_name ASC,
   course_title ASC
@@ -28,7 +28,6 @@ ORDER BY
  * Only field we want from instructors is his/her "name".
  * Because the relationship is not "many to many" it would normally be simpler to "start from the many side".
  *   So although we only practiced LEFT JOIN and not RIGHT JOIN so far let's use the latter this time.
- * CORRECTION: in fact checker's SQLite seems too old so no other choice than LEFT JOIN :/
  * While a course cannot exist without instructor, the reverse is not true, hence while we want a LEFT join to see 
  *   instructors not linked to any course.
  * Last business requirement implies a "chained ORDER BY".
