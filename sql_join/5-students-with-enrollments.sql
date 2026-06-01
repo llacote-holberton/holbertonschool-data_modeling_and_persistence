@@ -3,11 +3,11 @@
 --   so "get enrollment rows where for current student_id there is at least one row with non-empty course_id"
 SELECT DISTINCT students.name AS student_name
 FROM students
-JOIN ( -- SUBQUERY returning only ids of students enrolled in at least 1 course
+WHERE students.id IN (
+     -- SUBQUERY returning only ids of students enrolled in at least 1 course
     SELECT student_id FROM enrollments
     WHERE course_id IS NOT NULL
-) AS enrolled_students -- ALIAS mandatory for embedded subquery
-ON students.id = enrolled_students.student_id
+)
 ORDER BY student_name ASC
 ;
 
@@ -46,4 +46,16 @@ ORDER BY student_name ASC
  * trying to design the subquery 
  * SELECT student_id, course_id FROM enrollments WHERE course_id IS NOT NULL;
  *
+ */
+
+/** ====== V1 for reference (works but NOT compliant with task requirements) ======
+SELECT DISTINCT students.name AS student_name
+FROM students
+JOIN ( -- SUBQUERY returning only ids of students enrolled in at least 1 course
+    SELECT student_id FROM enrollments
+    WHERE course_id IS NOT NULL
+) AS enrolled_students -- ALIAS mandatory for embedded subquery
+ON students.id = enrolled_students.student_id
+ORDER BY student_name ASC
+;
  */
