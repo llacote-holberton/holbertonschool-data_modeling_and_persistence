@@ -248,3 +248,113 @@ The tables in this package are **not models to imitate**. They are intentionally
 - redesign them into cleaner schemas.
 
 </details>
+
+
+# Tasks details
+
+## Task 0: Diagnose and Normalize a Broken Academic Schema
+
+<details>
+<summary>Overview and instructions</summary>
+The table `student_courses` tries to store information about:
+
+- students,
+- courses,
+- instructors,
+- enrollments.
+
+Open the dataset and inspect it:
+
+```sql
+SELECT * FROM student_courses;
+```
+
+### Current Structure
+
+![mermaid-diagram-2026-04-22-101803.png](https://s3.eu-west-3.amazonaws.com/hbtn.intranet/uploads/medias/2026/4/136e4d7f9cf0928ae116f1434e47a797d21b1b14.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIA4MYA5JM5DUTZGMZG%2F20260602%2Feu-west-3%2Fs3%2Faws4_request&amp;X-Amz-Date=20260602T000136Z&amp;X-Amz-Expires=345600&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=fba74b682bc9568846388a66dc015a9cc1a5dba072a1b8c678aff5d136dfaeb9)
+
+```mermaid
+erDiagram
+    STUDENT_COURSES {
+        int student_id
+        string student_name
+        string student_email
+        string course_id
+        string course_name
+        string instructor_name
+        string instructor_email
+    }
+```
+
+### Example: Why this design causes problems
+
+#### Update anomaly
+Suppose the email for `Dr. Smith` changes.  
+Because `Dr. Smith` appears in multiple rows, you must update the same fact many times. If one row is forgotten, the database becomes inconsistent.
+
+Try this on a copy of the data:
+
+```sql
+UPDATE student_courses
+SET instructor_email = &#39;smith-new@academy.edu&#39;
+WHERE course_id = &#39;C101&#39;;
+```
+
+Then inspect the instructor rows again:
+
+```sql
+SELECT * FROM student_courses
+WHERE instructor_name = &#39;Dr. Smith&#39;;
+```
+
+Did every occurrence of the instructor change?
+
+#### Insert anomaly
+Suppose the school wants to add a new course before any student enrolls in it.  
+This table does not naturally support that idea, because the row structure mixes student and course data together.
+
+#### Delete anomaly
+Suppose the last enrollment for a course is deleted.  
+When the last row for that course disappears, the course and instructor information disappear with it.
+
+### Your task
+
+Redesign this schema so that it is suitable for a relational system.
+
+### Expectations
+
+- You are expected to **create new tables**.
+- Your solution should aim to remove the anomalies shown above.
+- You should move the design toward **Third Normal Form**.
+
+### Deliverables
+
+- a proposed schema (SQL or diagram),
+- optionally, a Mermaid ER diagram,
+- a short explanation of why the old table was problematic.
+
+### Self-Check Checklist
+
+Your solution is strong if:
+
+- each table represents a single concept,
+- student data is stored once,
+- course data is stored once,
+- instructor data is stored once,
+- enrollments are represented separately,
+- changing an instructor email requires one update only,
+- deleting an enrollment does not remove course information.
+
+### Discussion Prompt
+
+Compare your solution with another student’s solution.
+
+Discuss:
+
+- Did both of you create a separate instructor table?
+- Did both of you create a junction table for enrollments?
+- If your solutions differ, which anomalies does each one eliminate?
+
+</details>
+
+

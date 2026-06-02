@@ -1,0 +1,36 @@
+erDiagram
+    %% Entity structures
+    %% In code Student and Instructor would share a "Person" or "User" base class
+    STUDENT {
+        int id
+        string name
+        string email
+    }
+
+    INSTRUCTOR {
+      int id
+      string email
+      string name
+    }
+
+    COURSE {
+      int id
+      string name
+      int student_id
+      int instructor_id
+    }
+
+    %% Entity Relationships
+    STUDENT ||--o{ COURSE: follows
+    INSTRUCTOR ||--o{ COURSE: teaches
+
+    %% ==== NOTES ====
+    %% Went for a very simple design with course being the pivot table
+    %% Because without any additional context on business requirements
+    %% I feel it is easy enough to infer additional informations with simple joins,
+    %%   such as "with wich teacher(s) does X student interacts"
+    %%   or "how many students on average a teacher manages".
+    %% However in case volume of students/courses/teachers would scale high and far
+    %% THEN it could become useful/necessary to make for more direct relationships
+    %%   either creating "computed tables" or making direct relations by integrating
+    %%   some computed data in dedicated fields (ex in instructors, "students list" or "courses list").
