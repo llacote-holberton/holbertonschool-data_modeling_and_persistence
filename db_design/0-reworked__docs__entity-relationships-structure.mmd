@@ -16,12 +16,18 @@ erDiagram
     COURSE {
       int id
       string name
-      int student_id
       int instructor_id
     }
 
+    ENROLLMENT {
+       int id
+       int course_id
+       int student_id
+    }
+
     %% Entity Relationships
-    STUDENT ||--o{ COURSE: follows
+    STUDENT ||--o{ ENROLLMENT: registered_in
+    COURSE  ||--o{ ENROLLMENT: receives
     INSTRUCTOR ||--o{ COURSE: teaches
 
     %% ==== NOTES ====

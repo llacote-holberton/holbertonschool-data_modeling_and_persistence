@@ -47,16 +47,33 @@ CREATE TABLE IF NOT EXISTS courses
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     bid TEXT NOT NULL, -- "bid for Business Id aka something provided by humans"
-
     -- Compact version variant of the below "detailed/explicit" syntax
     -- NOTE THAT explicit "FOREIGN KEYS" declaration MUST ALL BE MADE AFTER column definitions.
     -- Hence that order if you want to mix "compact syntax" and "detailed syntax"
-    instructor_id INTEGER REFERENCES instructors(id),
+    instructor_id INTEGER REFERENCES instructors(id)
+);
+
+-- --------------------------------------
+-- Task 3: (re)creating enrollments table
+-- NOTE: MUST be created after the others conceptually because of the use of foreign keys.
+--   This table is required to efficiently store the representations of "many to many" relationships between two entity types.
+-- --------------------------------------
+SELECT '--- Forcefully (re)creating the Enrollments table ---' AS [LOG];
+
+DROP TABLE IF EXISTS enrollments;
+CREATE TABLE IF NOT EXISTS enrollments
+(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    -- Compact version variant of the below "detailed/explicit" syntax
+    -- NOTE THAT explicit "FOREIGN KEYS" declaration MUST ALL BE MADE AFTER column definitions.
+    -- Hence that order if you want to mix "compact syntax" and "detailed syntax"
+    course_id INTEGER REFERENCES course(id),
     -- Using the FOREIGN KEY syntax for good practice even though 
     --   constraints validation have been disabled from the PRAGMA instruction at the top.
     student_id INTEGER,  -- No "not null" because a course can have no students yet, or left.
     FOREIGN KEY (student_id) REFERENCES students(id)
 );
+
 
 /*
  * IMPORTANT NOTES on the concept of "Foreign keys" (primary keys for another table, "referenced" in current table)

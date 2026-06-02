@@ -108,18 +108,14 @@ WITH courses_data AS
       sc.course_id AS course_id,
       sc.course_name AS course_name,
       -- Instructor data
-      i.id AS instructor_id,
-      -- Student id
-      s.id AS student_id
+      i.id AS instructor_id
     FROM
       student_courses AS sc
       JOIN instructors AS i 
         ON sc.instructor_name = i.name
-      JOIN students AS s
-        ON sc.student_id = s.id
     ORDER BY course_id
 )
-INSERT INTO courses (bid, name, instructor_id, student_id)
+INSERT INTO courses (bid, name, instructor_id)
 SELECT * FROM courses_data
 ;
 
@@ -127,6 +123,45 @@ SELECT
     'Inserted Courses' AS [STEP], 
     COUNT(*) AS [INSERTED ROWS COUNT] 
 FROM courses;
+
+
+-- ------------------------------------------------------------
+-- Task 4: Filling the new tables enrollments
+-- ------------------------------------------------------------
+SELECT '--- Courses: deleting all existing values to recreate from scratch     ' AS [LOG];
+
+SELECT 'Warning: removing ' || COUNT(*) || ' enrollments' AS [LOG] FROM enrollments;
+DELETE FROM enrollments;
+DELETE FROM sqlite_sequence WHERE name = 'enrollments';
+SELECT 'Warning: enrollments id counter reset' AS [LOG];
+
+
+SELECT 'Starting (re)insertion of enrollments' AS [LOG];
+-- Using WITH to make things clearer
+WITH enrollments_data AS  --- FIXME
+(
+    SELECT DISTINCT
+      -- Course data
+      sc.course_id AS course_id,
+      -- Student id
+      s.id AS student_id
+    FROM
+      student_courses AS sc
+      JOIN students AS s
+        ON sc.student_id = s.id
+    ORDER BY course_id
+)
+INSERT INTO enrollments (course_id, student_id)
+SELECT * FROM enrollments_data
+;
+
+SELECT 
+    'Inserted Enrollments' AS [STEP], 
+    COUNT(*) AS [INSERTED ROWS COUNT] 
+FROM enrollments;
+
+
+
 
 /*
  * IMPORTANT NOTES on using INSERT while using data from other tables
