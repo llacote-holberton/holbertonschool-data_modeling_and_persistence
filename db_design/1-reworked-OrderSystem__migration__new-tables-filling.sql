@@ -65,6 +65,7 @@ SELECT replace
 )
 AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
 
+
 -- Deleting
 DELETE FROM customers;
 DELETE FROM sqlite_sequence WHERE name = 'customers';
@@ -81,6 +82,10 @@ AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
 -- Importing from source
 SELECT replace(template, '%s', 'customers') AS [LOG]
   FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+INSERT INTO customers (name, email)
+  SELECT DISTINCT customer_name, customer_email FROM order_lines_flat;
+
 
 -- Confirming
 SELECT replace
