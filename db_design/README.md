@@ -358,3 +358,99 @@ Discuss:
 </details>
 
 
+## Task 1. Redesign an Order System from a Flat Table
+
+<details>
+<summary>Overview and instructions</summary>
+The table `order_lines_flat` stores order data, customer data, and product data all together.
+
+Inspect it:
+
+```sql
+SELECT * FROM order_lines_flat;
+```
+
+### Current Structure
+
+![mermaid-diagram-2026-04-22-124452.png](https://s3.eu-west-3.amazonaws.com/hbtn.intranet/uploads/medias/2026/4/04026db1d868907d09b5ea4a7b8ce0b65c8567eb.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIA4MYA5JM5DUTZGMZG%2F20260603%2Feu-west-3%2Fs3%2Faws4_request&amp;X-Amz-Date=20260603T215225Z&amp;X-Amz-Expires=345600&amp;X-Amz-SignedHeaders=host&amp;X-Amz-Signature=26199aed90e4886dea6fee3d33d415499b537664a9c2c58849fdc5c898464c26)
+
+```mermaid
+erDiagram
+    ORDER_LINES_FLAT {
+        int order_id
+        string order_date
+        string customer_name
+        string customer_email
+        string product_code
+        string product_name
+        string category_name
+        float unit_price_paid
+        int quantity
+    }
+```
+
+### Example: Why this design causes problems
+
+Suppose the product name for `P200` needs to be updated.
+
+Try this:
+
+```sql
+UPDATE order_lines_flat
+SET product_name = &#39;Wireless Mouse&#39;
+WHERE product_code = &#39;P200&#39;;
+```
+
+Now inspect all rows for that product:
+
+```sql
+SELECT * FROM order_lines_flat
+WHERE product_code = &#39;P200&#39;;
+```
+
+You had to update multiple rows to change one product description.
+
+Also notice that customer data is repeated for every order line, and order-level data is mixed with product-line data.
+
+### Your task
+
+Design a better schema for this system, based on the data you see and the following requirements:
+
+- one customer can place many orders,
+- one order can contain multiple products,
+- one product can appear in many orders,
+- each order line records a purchased quantity.
+
+### Expectations
+
+- You are expected to **create new tables**.
+- You should separate customer, order, product, and line-item concepts.
+- You should think carefully about whether `unit_price_paid` belongs with the product or with the order line.
+
+### Deliverables
+
+- a proposed schema,
+- optionally, a Mermaid ER diagram,
+- a short justification for where you placed `unit_price_paid`.
+
+### Self-Check Checklist
+
+Your solution is strong if:
+
+- customer data is not repeated across order lines,
+- product data is not repeated across order lines,
+- order-level data is separated from item-level data,
+- quantity is stored at the order-item level,
+- you can explain your reasoning about price history.
+
+### Discussion Prompt
+
+Compare your solution with another student’s solution.
+
+Discuss:
+
+- Did both of you keep `unit_price_paid` in `order_items`?
+- If one design puts price in `products` only, what historical information is lost?
+- Which design is easier to maintain, and why?
+
+</details>
