@@ -25,3 +25,23 @@ INSERT INTO log_templates VALUES
 
 -- HOW TO USE (simple example), note the temp. prefix specific syntax for SQLite3
 SELECT replace(template, '%s', 'Good!') AS [LOG] FROM temp.log_templates WHERE code = 'TEST';
+
+-- ----------------------------------------------------------------------------
+-- Task 0: Ensuring "source table exists" to prevent script crash later.
+-- ----------------------------------------------------------------------------
+SELECT replace(template, '%s', 'order_lines_flat') AS [LOG] FROM temp.log_templates WHERE code = 'SOURCE_FALLBACK';
+SELECT '    in order to avoid script crashing on the select which follow           ---' AS [LOG];
+
+-- Keeping "if not exists" to easily change the script mode by just removing above line.
+CREATE TABLE IF NOT EXISTS order_lines_flat
+(
+    order_id INTEGER,
+    order_date TEXT,
+    customer_name TEXT,
+    customer_email TEXT,
+    product_code TEXT,
+    product_name TEXT,
+    category_name TEXT,
+    unit_price_paid REAL,
+    quantity INTEGER
+);
