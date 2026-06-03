@@ -227,6 +227,8 @@ INSERT INTO orders (placed_at, customer_id)
     FROM order_lines_flat as olf
     JOIN customers as c
       ON olf.customer_name = c.name AND olf.customer_email = c.email
+    GROUP BY olf.order_id
+    ORDER BY olf.order_id;
 ;
 
 
