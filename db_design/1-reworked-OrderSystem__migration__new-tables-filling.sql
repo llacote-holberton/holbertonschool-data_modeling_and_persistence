@@ -17,7 +17,8 @@ CREATE TEMP TABLE IF NOT EXISTS log_templates
 INSERT INTO log_templates VALUES
 ('SOURCE_FALLBACK'     , 'Trying "create if not exists" for source table %s as safety'  ),
 ('CLEAN_EXISTING_DATA' , '%s: deleting all existing values to recreate from scratch' ),
-('CLEAN_CONFIRMATION'  , '--> %d %s deleted'                                         ),
+('CLEAN_WARNING'       , 'Warning! %d %s will be deleted'                            ),
+('CLEAN_CONFIRMATION'  , '--> %d %s remaining'                                       ),
 ('IMPORT_STARTING'     , 'Starting (re)import of %s data'                            ),
 ('IMPORT_CONFIRMATION' , 'Success: %d %s inserted'                                   ),
 ('TEST'                , 'SQL is %s'                                                 )
@@ -45,3 +46,215 @@ CREATE TABLE IF NOT EXISTS order_lines_flat
     unit_price_paid REAL,
     quantity INTEGER
 );
+
+SELECT '--- However we make the assumption all new tables exist as this script is     ' AS [LOG];
+SELECT '    normally executed ONLY "sequentially after the table creations one"      ---' AS [LOG];
+SELECT 'IMPORTANT: please note that this script DELETES all existing data before reimporting' AS [LOG];
+
+-- ----------------------------------------------------------------------------
+-- Task 1: Reading the source table's data to fill in customers
+-- ----------------------------------------------------------------------------
+-- INFO/Warning about existing content deletion
+SELECT replace(template, '%s', 'customers') AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_EXISTING_DATA';
+SELECT replace
+(
+    -- Using a nested replace call to provide template with first replacement made
+    replace(template, '%s', 'customers'),
+    '%d',
+    (SELECT COUNT(*) FROM customers)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
+
+-- Deleting
+DELETE FROM customers;
+DELETE FROM sqlite_sequence WHERE name = 'customers';
+
+SELECT replace
+(
+    replace(template, '%s', 'customers'),
+    '%d',
+    (SELECT COUNT(*) FROM customers)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
+
+
+-- Importing from source
+SELECT replace(template, '%s', 'customers') AS [LOG]
+  FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+-- Confirming
+SELECT replace
+(
+    replace(template, '%s', 'customers'),
+    '%d',
+    (SELECT COUNT(*) FROM customers)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'IMPORT_CONFIRMATION';
+
+-- ----------------------------------------------------------------------------
+-- Task 2: Reading the source table's data to fill in categories
+-- ----------------------------------------------------------------------------
+SELECT replace(template, '%s', 'categories') AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_EXISTING_DATA';
+SELECT replace
+(
+    -- Using a nested replace call to provide template with first replacement made
+    replace(template, '%s', 'categories'),
+    '%d',
+    (SELECT COUNT(*) FROM categories)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
+
+-- Deleting
+DELETE FROM categories;
+DELETE FROM sqlite_sequence WHERE name = 'categories';
+
+SELECT replace
+(
+    replace(template, '%s', 'categories'),
+    '%d',
+    (SELECT COUNT(*) FROM categories)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
+
+-- Importing from source
+SELECT replace(template, '%s', 'categories') AS [LOG]
+  FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+-- Confirming
+SELECT replace
+(
+    replace(template, '%s', 'categories'),
+    '%d',
+    (SELECT COUNT(*) FROM categories)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'IMPORT_CONFIRMATION';
+
+
+-- ----------------------------------------------------------------------------
+-- Task 3: Reading the source table's data to fill in products
+-- ----------------------------------------------------------------------------
+SELECT replace(template, '%s', 'products') AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_EXISTING_DATA';
+SELECT replace
+(
+    -- Using a nested replace call to provide template with first replacement made
+    replace(template, '%s', 'products'),
+    '%d',
+    (SELECT COUNT(*) FROM products)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
+
+-- Deleting
+DELETE FROM products;
+DELETE FROM sqlite_sequence WHERE name = 'products';
+
+SELECT replace
+(
+    replace(template, '%s', 'products'),
+    '%d',
+    (SELECT COUNT(*) FROM products)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
+
+-- Importing from source
+SELECT replace(template, '%s', 'products') AS [LOG]
+  FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+-- Confirming
+SELECT replace
+(
+    replace(template, '%s', 'products'),
+    '%d',
+    (SELECT COUNT(*) FROM products)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'IMPORT_CONFIRMATION';
+
+
+
+-- ----------------------------------------------------------------------------
+-- Task 4: Reading the source table's data to fill in orders
+-- ----------------------------------------------------------------------------
+SELECT replace(template, '%s', 'orders') AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_EXISTING_DATA';
+SELECT replace
+(
+    -- Using a nested replace call to provide template with first replacement made
+    replace(template, '%s', 'orders'),
+    '%d',
+    (SELECT COUNT(*) FROM orders)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
+
+-- Deleting
+DELETE FROM orders;
+DELETE FROM sqlite_sequence WHERE name = 'orders';
+
+SELECT replace
+(
+    replace(template, '%s', 'orders'),
+    '%d',
+    (SELECT COUNT(*) FROM orders)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
+
+-- Importing from source
+SELECT replace(template, '%s', 'orders') AS [LOG]
+  FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+-- Confirming
+SELECT replace
+(
+    replace(template, '%s', 'orders'),
+    '%d',
+    (SELECT COUNT(*) FROM orders)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'IMPORT_CONFIRMATION';
+
+
+
+-- ----------------------------------------------------------------------------
+-- Task 5: Reading the source table's data to fill in order_lines
+-- ----------------------------------------------------------------------------
+SELECT replace(template, '%s', 'order_lines') AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_EXISTING_DATA';
+SELECT replace
+(
+    -- Using a nested replace call to provide template with first replacement made
+    replace(template, '%s', 'order_lines'),
+    '%d',
+    (SELECT COUNT(*) FROM order_lines)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
+
+-- Deleting
+DELETE FROM order_lines;
+DELETE FROM sqlite_sequence WHERE name = 'order_lines';
+
+SELECT replace
+(
+    replace(template, '%s', 'order_lines'),
+    '%d',
+    (SELECT COUNT(*) FROM order_lines)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
+
+-- Importing from source
+SELECT replace(template, '%s', 'order_lines') AS [LOG]
+  FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+-- Confirming
+SELECT replace
+(
+    replace(template, '%s', 'order_lines'),
+    '%d',
+    (SELECT COUNT(*) FROM order_lines)
+)
+AS [LOG] FROM temp.log_templates WHERE code = 'IMPORT_CONFIRMATION';
+
+
+
+
+
+
+
+
+
+
+
