@@ -256,6 +256,7 @@ SELECT replace
 )
 AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
 
+
 -- Deleting
 DELETE FROM order_lines;
 DELETE FROM sqlite_sequence WHERE name = 'order_lines';
@@ -268,9 +269,38 @@ SELECT replace
 )
 AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
 
+
 -- Importing from source
 SELECT replace(template, '%s', 'order_lines') AS [LOG]
   FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+-- Most complex: must pick quantity from source table and also use it on "order date"
+--   to be able to reassociate order lines with "rows from the new orders table".
+INSERT INTO order_lines (order_id, product_id, unit_price_paid, quantity)
+  SELECT DISTINCT
+    o.id, -- Id from orders table which will find by comparing the placed_at with olf.order_date
+    p.id, -- Id from products table which we fill find by comparing its associated name with olf.product_name
+    p.unit_price, -- Picking directly from products table since it's our new reference
+    olf.quantity  -- Only information not retrieved yet
+  FROM
+    order_lines_flat as olf -- Must "start" from this one so it's know for the ON clauses
+    -- If not using the old order_id column we must identify uniquely on date AND customer because
+    -- several distinct customers may place an order on the same day!
+    JOIN customers as c ON c.name = olf.customer_name AND c.email = olf.customer_email
+    JOIN orders as o   ON o.placed_at = olf.order_date AND o.customer_id = c.id
+     -- Additional constraint on customer id REQUIRED to avoid having "source line" matching different clients on same date.
+     -- Because EACH JOIN applies its logic separately so the "check on customer name and email when joining customers"
+     --   has no impact on the join between orders and olf.
+
+    -- INSUFFICIENTLY PRECISE BY ITSELF
+    -- JOIN orders as o   ON o.placed_at = olf.order_date
+
+    -- INSUFFICIENTLY PRECISE
+    -- JOIN products as p ON p.name = olf.product_name
+    JOIN products as p ON p.code = olf.product_code
+
+;
+
 
 -- Confirming
 SELECT replace
