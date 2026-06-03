@@ -58,6 +58,13 @@ CREATE TABLE IF NOT EXISTS products
 -- --------------------------------------
 SELECT '--- Forcefully (re)creating the orders table ---' AS [LOG];
 
+-- Task 3a: (re)creating a "helper table" which will hold the different status
+DROP TABLE IF EXISTS order_status;
+-- NOTE: initially wanted to use code as primary key, but having an integer will make checks easier.
+CREATE TABLE IF NOT EXISTS order_status(name PRIMARY KEY, code INT NOT NULL UNIQUE);
+INSERT INTO order_status (name, code) VALUES ('PENDING', 1), ('CONFIRMED', 2), ('PAID', 3), ('SHIPPED', 4), ('DELIVERED', 5), ('CANCELLED', 100);
+
+-- Task 3b: (re)creating the orders table with constraints and default value on status
 DROP TABLE IF EXISTS orders;
 CREATE TABLE IF NOT EXISTS orders
 (
@@ -65,6 +72,9 @@ CREATE TABLE IF NOT EXISTS orders
     -- IMPORTANT! "date" is a reserved keyword.
     placed_at DATETIME NOT NULL, -- Confer comments in "Notes & Design choice" for explanations on "DATETIME"
     -- Using the FOREIGN KEY syntax for good practice and training although a bit more verbose.
+    status TEXT NOT NULL DEFAULT 'CONFIRMED' REFERENCES order_status(name),
+    -- NOTE: using "CONFIRMED" as default value and not PENDING arbitrarily to be able to try my "total_price" computation.
+    total_price REAL, -- Cannot have NOT NULL constraint because cannot be filled at row creation.
     customer_id INTEGER NOT NULL,
     old_order_id INTEGER, -- "Temporary column" for transition management could be deleted once migration is finished.
     -- Reminder: all "explicit foreign keys constraints" must be placed after all columns definitions.

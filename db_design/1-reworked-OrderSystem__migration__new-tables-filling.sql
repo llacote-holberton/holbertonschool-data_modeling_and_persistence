@@ -299,9 +299,21 @@ SELECT replace
 AS [LOG] FROM temp.log_templates WHERE code = 'IMPORT_CONFIRMATION';
 
 
-
-
-
+-- ----------------------------------------------------------------------------
+-- Task 6: Computing and filling the total_price in orders which reached CONFIRMED
+-- ----------------------------------------------------------------------------
+UPDATE orders
+SET total_price = 
+(
+  -- We need the aggregation of each order line's subtotal = unit price * quantity
+  SELECT SUM(ol.unit_price_paid * ol.quantity)
+  FROM order_lines as ol
+  WHERE ol.order_id = orders.id
+)
+WHERE
+  total_price IS NULL
+  and status IN (SELECT name FROM order_status WHERE code BETWEEN 2 and 5)
+;
 
 /**
  * ========== NOTES AND DESIGN CHOICES ==========
