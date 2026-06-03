@@ -109,6 +109,7 @@ SELECT replace
 )
 AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
 
+
 -- Deleting
 DELETE FROM categories;
 DELETE FROM sqlite_sequence WHERE name = 'categories';
@@ -121,9 +122,14 @@ SELECT replace
 )
 AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
 
+
 -- Importing from source
 SELECT replace(template, '%s', 'categories') AS [LOG]
   FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+INSERT INTO categories (name)
+  SELECT DISTINCT category_name FROM order_lines_flat;
+
 
 -- Confirming
 SELECT replace
