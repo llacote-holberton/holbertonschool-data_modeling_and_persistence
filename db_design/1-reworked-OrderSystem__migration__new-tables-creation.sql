@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS orders
     placed_at DATETIME NOT NULL, -- Confer comments in "Notes & Design choice" for explanations on "DATETIME"
     -- Using the FOREIGN KEY syntax for good practice and training although a bit more verbose.
     customer_id INTEGER NOT NULL,
+    old_order_id INTEGER, -- "Temporary column" for transition management could be deleted once migration is finished.
     -- Reminder: all "explicit foreign keys constraints" must be placed after all columns definitions.
     FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
