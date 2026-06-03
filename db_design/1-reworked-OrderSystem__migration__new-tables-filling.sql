@@ -154,6 +154,7 @@ SELECT replace
 )
 AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
 
+
 -- Deleting
 DELETE FROM products;
 DELETE FROM sqlite_sequence WHERE name = 'products';
@@ -169,6 +170,15 @@ AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
 -- Importing from source
 SELECT replace(template, '%s', 'products') AS [LOG]
   FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+
+INSERT INTO products (name, code, unit_price, category_id)
+  SELECT DISTINCT
+    product_name, product_code, unit_price_paid,
+    categories.id
+    FROM order_lines_flat as olf
+    JOIN categories ON olf.category_name = categories.name
+;
+
 
 -- Confirming
 SELECT replace
