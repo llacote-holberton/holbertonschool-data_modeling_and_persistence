@@ -1,0 +1,73 @@
+erDiagram
+    %% Relationships for product ordering system
+
+    CUSTOMER 
+    {
+        int id
+        string name
+        string email
+    }
+
+    PRODUCT 
+    {
+        string code
+        string name
+        %% Just in case we would like to add more info to each category
+        %%   it will be in its own table.
+        int category_id
+        %% Feels right to have it in product AND in ORDER because, in order...
+        %% Price reflect quantities of all items aggregated AND potential reductions.
+        float unit_price
+    }
+
+    CATEGORY 
+    {
+        %% NOTE: we don't use name directly as PRIMARY KEY because it would make any update very costly
+        %%   for example changing label of a category would imply updating all references to it as foreign keys.
+        %%   Plus it mixes up "technical meaning" with "business meaning".
+        int id
+        string name
+    }
+
+    ORDER 
+    {
+        int id
+        datetime date
+        int customer_id
+        %% Detail of items can be inferred from a SELECT query on ORDER_LINE table.
+        %% HOWEVER I decide to store the computed total price in order (ideally once order is finalized and paid)
+        %% BECAUSE a) it's one of the infos a customer may want to see ASAP when browsing order history
+        %% AND it can also be used separately to make some statistics so keeping it here avoid complex compounded requests from ORDER_LINE.
+        float total_price
+        %% Technically should really be an ENUM or SET aka a fixed, predetermined set of authorized values.
+        %% Or could be made as a "string foreign key" targeting a dedicated table "order status" with columns ("code", "label")
+        string status
+    }
+
+    ORDER_LINE 
+    {
+        int id
+        int order_id
+        int product_id
+        %% Distinct from product base price because customer may have been able to apply some price cut
+        float unit_price_paid
+        int quantity
+    }
+
+    CUSTOMER ||--o{ ORDER : places
+    ORDER ||--o{ ORDER_LINE : contains
+    %% WRONG relationship: it makes sense from a business point of view, but from a database point of view it doesn't
+    %%   because we may find the same product_id in several order_line rows so it is actually one (PRODUCT) to many (ORDER LINE)
+    %% ORDER_LINE ||--o{ PRODUCT : references
+    %% Wrong because it's actually a category which may appear in several products
+    %% PRODUCT ||--o{ CATEGORY : filterable_by
+    PRODUCT o{--|| CATEGORY : filterable_by
+    %% ==== NOTES ====
+    %% Added a few informations because it made sense for an e-shop system.
+    %% To correctly conceptualize relationships I must always ask myself "in both ways (A-> and B->A)"
+    %%   in how many lines of B can my row of A can be "connected" ?
+    %% Diagram does not represent the "business relationship" but "database relationship"
+    %% In absence of precisions I initially decided that one product could be associated to several categories...
+    %% But it complexifies very much the system because it makes it a "many to many" relationship since...
+    %% Not only a category can "appear in many products" BUT ALSO "a product can appear in many categories"
+    %%   which means we'd need a dedicated "linking table" named something like "products_by_categories" or something.
