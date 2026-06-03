@@ -204,6 +204,7 @@ SELECT replace
 )
 AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_WARNING';
 
+
 -- Deleting
 DELETE FROM orders;
 DELETE FROM sqlite_sequence WHERE name = 'orders';
@@ -216,9 +217,18 @@ SELECT replace
 )
 AS [LOG] FROM temp.log_templates WHERE code = 'CLEAN_CONFIRMATION';
 
+
 -- Importing from source
 SELECT replace(template, '%s', 'orders') AS [LOG]
   FROM temp.log_templates WHERE code = 'IMPORT_STARTING';
+-- NOTE: forgot to add the "total_price" in table definition but couldn't be filled in now anyways.
+INSERT INTO orders (placed_at, customer_id)
+  SELECT olf.order_date, c.id
+    FROM order_lines_flat as olf
+    JOIN customers as c
+      ON olf.customer_name = c.name AND olf.customer_email = c.email
+;
+
 
 -- Confirming
 SELECT replace
